@@ -1,7 +1,9 @@
-
+import pygame, sys, random, chess, platform
+from board import boardState
+from pygame.locals import *
 
 WHITE = "w"
-BLAKC = "b"
+BLACK = "b"
 
 UNICODE_PIECES = {
     "K": "♔",
@@ -19,6 +21,11 @@ UNICODE_PIECES = {
 }
 
 BOARDSIZE = 800
-SQUARESIZE = BOARDSIZE/8
 FPS = 60
 
+
+##############
+#DO NOT TOUCH
+##############
+
+SQUARESIZE = BOARDSIZE/8 
