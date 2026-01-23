@@ -23,6 +23,9 @@ class game:
         elif platform.system() == "Darwin":
             self.PIECE_FONT = pygame.font.SysFont('applesymbols', int(config.SQUARESIZE * 0.8))  # Mac
 
+        self.selectedPiece = None
+        self.selectedPieceSquare = None
+
         self.drawBoard(self.DISPLAYSURF)
         self.drawPieces(self.DISPLAYSURF, self.board)  
 
@@ -65,19 +68,11 @@ class game:
 
     #Given a square, if there exists a piece return the squares that it can move to
     def drawMoves(self, square):
-        piece = self.board.board.piece_at(square)
-        
-        if not piece:
-            return []
-        
-        legalMoves = self.board.board.legal_moves
-        drawList = []
+        legalPieceMoves = []
+        for move in self.legalPieceMoves(square):
+            legalPieceMoves.append(move.to_square)
 
-        for move in legalMoves:
-            if move.from_square == square:
-                drawList.append(move.to_square)
-        
-        self.drawMoveIndicators(self.DISPLAYSURF, drawList)
+        self.drawMoveIndicators(self.DISPLAYSURF, legalPieceMoves)
 
     def drawMoveIndicators(self, Display, moveSquare):
         #Clear dots by redrawing the game board and pieces from the pychess board
@@ -92,10 +87,29 @@ class game:
             center_y = int(row * config.SQUARESIZE + config.SQUARESIZE // 2)
             radius = int(config.SQUARESIZE // 6)
             
-            pygame.draw.circle(Display, (100, 100, 100, 128), (center_x, center_y), radius)
+            #TODO Change to semi transparent circle
+            pygame.draw.circle(Display, (200, 200, 200, 128), (center_x, center_y), radius)
             
- 
+    def legalPieceMoves(self, square):
+        piece = self.board.board.piece_at(square)
+        
+        if not piece:
+            return []
+        
+        legalMoves = self.board.board.legal_moves
+        legalPieceMoves = []
 
+        for move in legalMoves:
+            if move.from_square == square:
+                legalPieceMoves.append(move)
+        
+        return legalPieceMoves
+    
+    def DisplaytoSquare(self, x, y):
+        boardFile = int(x / config.SQUARESIZE)
+        boardRank = int(8 - y / config.SQUARESIZE) #Coords are flipped for Y so flip it back
+        return chess.square(boardFile, boardRank)
+    
     def start(self):
         while True:
             for event in pygame.event.get():
@@ -105,17 +119,30 @@ class game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
                     #Convert Display X Y to board X Y square
-                    boardFile = int(x / config.SQUARESIZE)
-                    boardRank = int(8 - y / config.SQUARESIZE) #Coords are flipped for Y so flip it back
+                    clickedSquare = self.DisplaytoSquare(x, y)
 
-                    clickedSquare = chess.square(boardFile, boardRank)
-                    piece = self.board.board.piece_at(clickedSquare)
-                    if piece:
+                    clickedPiece = self.board.board.piece_at(clickedSquare)
+                    if clickedPiece  and clickedPiece.color == self.board.board.turn:
+                        self.selectedPiece = clickedPiece
+                        self.selectedPieceSquare = clickedSquare
                         self.drawMoves(clickedSquare)
-                        
+                    
+                    selectedPieceMoves = self.legalPieceMoves(self.selectedPieceSquare)
+                    for move in selectedPieceMoves:
+                        if move.to_square == clickedSquare:
+                            selectedMove = move
+                            #Move selected piece to move/make move in pychess and redraw
+                            self.board.board.push(selectedMove)
+                            self.drawBoard(self.DISPLAYSURF)
+                            self.drawPieces(self.DISPLAYSURF, self.board)
+            
+            if self.board.isGameOver():
+                print("Game Over")
+                break
 
             pygame.display.update()
             self.fps.tick(config.FPS)
 
 
 
+##Add function for pawn promotion and semi transparent move indicators
