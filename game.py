@@ -66,19 +66,35 @@ class game:
     #Given a square, if there exists a piece return the squares that it can move to
     def drawMoves(self, square):
         piece = self.board.board.piece_at(square)
-    
-        moves = self.board.board.legal_moves
+        
+        if not piece:
+            return []
+        
+        legalMoves = self.board.board.legal_moves
         drawList = []
 
-        #With piece and square, try to make each move in legal move. If move is possible, add it to draw list
-        for move in moves:
-            boardCopy = self.board
-            newMove = chess.Move(square, move)
-            if boardCopy.board.push(newMove):
-                drawList.append(move)
+        for move in legalMoves:
+            if move.from_square == square:
+                drawList.append(move.to_square)
         
-        print(drawList)
-                
+        self.drawMoveIndicators(self.DISPLAYSURF, drawList)
+
+    def drawMoveIndicators(self, Display, moveSquare):
+        #Clear dots by redrawing the game board and pieces from the pychess board
+        self.drawBoard(self.DISPLAYSURF)
+        self.drawPieces(self.DISPLAYSURF, self.board)
+
+        for square in moveSquare:
+            col = chess.square_file(square)
+            row = 7 - chess.square_rank(square)
+            
+            center_x = int(col * config.SQUARESIZE + config.SQUARESIZE // 2)
+            center_y = int(row * config.SQUARESIZE + config.SQUARESIZE // 2)
+            radius = int(config.SQUARESIZE // 6)
+            
+            pygame.draw.circle(Display, (100, 100, 100, 128), (center_x, center_y), radius)
+            
+ 
 
     def start(self):
         while True:
@@ -96,6 +112,7 @@ class game:
                     piece = self.board.board.piece_at(clickedSquare)
                     if piece:
                         self.drawMoves(clickedSquare)
+                        
 
             pygame.display.update()
             self.fps.tick(config.FPS)
