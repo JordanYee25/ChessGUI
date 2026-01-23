@@ -34,3 +34,4 @@ class boardState:
         if len(list(self.board.legal_moves)) == 0:
             return True
         return False
+    
