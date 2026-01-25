@@ -24,11 +24,6 @@ class boardState:
         # self.white_pts = 0 
         # self.black_pts = 0  
 
-    def generate_successor(self, state, move : chess.Move):
-        successor = state.board.copy()
-        successor.push(move)
-        return boardState(successor, move)
-    
     # Ret True or False (game not over)
     def isGameOver(self):
         if len(list(self.board.legal_moves)) == 0:
