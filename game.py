@@ -71,7 +71,7 @@ class game:
                 
                 if piece:
                     piece_symbol = piece.symbol()  # Returns 'K', 'q', 'P', etc.
-                    unicode_piece = config.UNICODE_PIECES[piece_symbol]
+                    unicode_piece = self.UNICODE_PIECES[piece_symbol]
                     piece_surface = self.PIECE_FONT.render(unicode_piece, True, (0, 0, 0))
                     
                     #Center

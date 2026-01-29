@@ -1,6 +1,6 @@
 Install the following into a virtual enviroment venv
 
-pychess
+chess
 pygame
 
 
